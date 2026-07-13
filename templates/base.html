@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CivicGuard - GDPR Compliance System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body { background-color: #f8f9fa; }
+        .sidebar {
+            min-height: 100vh;
+            background-color: #1F4E79;
+            padding-top: 20px;
+        }
+        .sidebar a {
+            color: #ffffff;
+            text-decoration: none;
+            display: block;
+            padding: 12px 20px;
+            font-size: 15px;
+        }
+        .sidebar a:hover { background-color: #2E74B5; }
+        .sidebar .brand {
+            color: white;
+            font-size: 20px;
+            font-weight: bold;
+            padding: 10px 20px 20px 20px;
+            border-bottom: 1px solid #2E74B5;
+            margin-bottom: 10px;
+        }
+        .main-content { padding: 30px; }
+        .navbar-top {
+            background-color: white;
+            border-bottom: 1px solid #dee2e6;
+            padding: 10px 20px;
+        }
+        .card { border: none; box-shadow: 0 2px 6px rgba(0,0,0,0.08); }
+        .badge-pending { background-color: #ffc107; color: #000; }
+        .badge-approved { background-color: #198754; }
+        .badge-rejected { background-color: #dc3545; }
+    </style>
+</head>
+<body>
+{% if session.user %}
+<div class="d-flex">
+    <div class="sidebar" style="width: 240px; min-width: 240px;">
+        <div class="brand">
+            <i class="bi bi-shield-check"></i> CivicGuard
+        </div>
+        <a href="{{ url_for('dashboard') }}"><i class="bi bi-speedometer2 me-2"></i>Dashboard</a>
+        <a href="{{ url_for('disclosures') }}"><i class="bi bi-file-earmark-lock me-2"></i>Disclosure Workflow</a>
+        <a href="{{ url_for('breaches') }}"><i class="bi bi-exclamation-triangle me-2"></i>Breach Tracker</a>
+        <a href="{{ url_for('dsars') }}"><i class="bi bi-person-lines-fill me-2"></i>DSAR Manager</a>
+        <hr style="border-color: #2E74B5;">
+        <a href="{{ url_for('logout') }}"><i class="bi bi-box-arrow-left me-2"></i>Logout</a>
+    </div>
+    <div class="flex-grow-1">
+        <div class="navbar-top d-flex justify-content-between align-items-center">
+            <span class="text-muted">GDPR Compliance Process Management System</span>
+            <span><i class="bi bi-person-circle me-1"></i>{{ session.full_name }} 
+            <span class="badge bg-primary ms-1">{{ session.role }}</span></span>
+        </div>
+        <div class="main-content">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            {% for category, message in messages %}
+            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            {% endfor %}
+            {% endif %}
+            {% endwith %}
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+</div>
+{% else %}
+{% block auth %}{% endblock %}
+{% endif %}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

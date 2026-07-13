@@ -1,0 +1,205 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold" style="color: #1F4E79;">
+            <i class="bi bi-person-lines-fill me-2"></i>DSAR Manager
+        </h2>
+        <p class="text-muted mb-0">Manage Data Subject Access Requests within the 30-day statutory deadline</p>
+    </div>
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newDSARModal">
+        <i class="bi bi-plus-circle me-2"></i>New DSAR
+    </button>
+</div>
+
+<!-- Summary Strip -->
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="p-3 rounded text-center" style="background-color:#F8D7DA;">
+            <div class="fw-bold small" style="color:#842029;">Overdue</div>
+            <div style="font-size:28px;font-weight:bold;color:#842029;">
+                {{ dsars | selectattr('days_remaining', 'lt', 0) | 
+                   selectattr('status', 'ne', 'Completed') | list | length }}
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="p-3 rounded text-center" style="background-color:#FFF3CD;">
+            <div class="fw-bold small" style="color:#856404;">Due Soon (7 days)</div>
+            <div style="font-size:28px;font-weight:bold;color:#856404;">
+                {{ dsars | selectattr('days_remaining', 'ge', 0) | 
+                   selectattr('days_remaining', 'le', 7) |
+                   selectattr('status', 'ne', 'Completed') | list | length }}
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="p-3 rounded text-center" style="background-color:#D1ECF1;">
+            <div class="fw-bold small" style="color:#0c5460;">On Track</div>
+            <div style="font-size:28px;font-weight:bold;color:#0c5460;">
+                {{ dsars | selectattr('days_remaining', 'gt', 7) |
+                   selectattr('status', 'ne', 'Completed') | list | length }}
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="p-3 rounded text-center" style="background-color:#D4EDDA;">
+            <div class="fw-bold small" style="color:#155724;">Completed</div>
+            <div style="font-size:28px;font-weight:bold;color:#155724;">
+                {{ dsars | selectattr('status', 'equalto', 'Completed') | list | length }}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- DSAR Table -->
+<div class="card">
+    <div class="card-body">
+        {% if dsars %}
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead style="background-color:#f8f9fa;">
+                    <tr>
+                        <th>#</th>
+                        <th>Requester</th>
+                        <th>Request Details</th>
+                        <th>Received</th>
+                        <th>Deadline</th>
+                        <th>Days Left</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for d in dsars %}
+                    <tr class="{{ 'table-danger' if d.days_remaining < 0 and d.status != 'Completed' else '' }}">
+                        <td class="text-muted small">{{ d.id }}</td>
+                        <td>
+                            <div class="fw-bold">{{ d.requester_name }}</div>
+                            <div class="text-muted small">{{ d.requester_email }}</div>
+                        </td>
+                        <td class="small">{{ d.request_details[:50] }}...</td>
+                        <td class="small">{{ d.received_at[:10] }}</td>
+                        <td class="small">{{ d.deadline[:10] }}</td>
+                        <td>
+                            {% if d.status == 'Completed' %}
+                            <span class="badge bg-success">Done</span>
+                            {% elif d.days_remaining < 0 %}
+                            <span class="badge bg-danger">
+                                {{ d.days_remaining|abs }} days overdue
+                            </span>
+                            {% elif d.days_remaining <= 7 %}
+                            <span class="badge bg-warning text-dark">
+                                {{ d.days_remaining }} days left
+                            </span>
+                            {% else %}
+                            <span class="badge bg-success">
+                                {{ d.days_remaining }} days left
+                            </span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if d.status == 'Open' %}
+                            <span class="badge bg-primary">Open</span>
+                            {% elif d.status == 'In Progress' %}
+                            <span class="badge bg-warning text-dark">In Progress</span>
+                            {% elif d.status == 'Completed' %}
+                            <span class="badge bg-success">Completed</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if d.status != 'Completed' %}
+                            <form method="POST" 
+                                  action="{{ url_for('update_dsar', id=d.id) }}" 
+                                  class="d-inline">
+                                <input type="hidden" name="action" value="progress">
+                                <button class="btn btn-sm btn-outline-warning me-1">
+                                    <i class="bi bi-arrow-right"></i>
+                                </button>
+                            </form>
+                            <form method="POST" 
+                                  action="{{ url_for('update_dsar', id=d.id) }}" 
+                                  class="d-inline">
+                                <input type="hidden" name="action" value="complete">
+                                <button class="btn btn-sm btn-outline-success">
+                                    <i class="bi bi-check-lg"></i>
+                                </button>
+                            </form>
+                            {% else %}
+                            <span class="text-muted small">
+                                Completed {{ d.completed_at[:10] if d.completed_at else '' }}
+                            </span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5 text-muted">
+            <i class="bi bi-inbox" style="font-size:48px;"></i>
+            <p class="mt-3">No DSAR requests found.</p>
+            <p class="small">Click "New DSAR" to log a request.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- New DSAR Modal -->
+<div class="modal fade" id="newDSARModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header" style="background-color:#1F4E79;">
+                <h5 class="modal-title text-white">
+                    <i class="bi bi-person-plus me-2"></i>Log New DSAR
+                </h5>
+                <button type="button" class="btn-close btn-close-white" 
+                        data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{{ url_for('add_dsar') }}">
+                <div class="modal-body">
+                    <div class="alert alert-info py-2 small mb-3">
+                        <i class="bi bi-clock me-1"></i>
+                        <strong>30-day deadline applies.</strong>
+                        The deadline will be calculated automatically from the date received.
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Requester Full Name</label>
+                        <input type="text" name="requester_name" class="form-control"
+                               placeholder="e.g. John Smith" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Requester Email</label>
+                        <input type="email" name="requester_email" class="form-control"
+                               placeholder="e.g. john.smith@email.com" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Request Details</label>
+                        <textarea name="request_details" class="form-control" rows="3"
+                                  placeholder="Describe what personal data the requester is asking to access..."
+                                  required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Date Request Received</label>
+                        <input type="date" name="received_at" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Assign To</label>
+                        <input type="text" name="assigned_to" class="form-control"
+                               placeholder="e.g. Sarah Jones — Data Team">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" 
+                            data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-save me-1"></i>Log DSAR
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

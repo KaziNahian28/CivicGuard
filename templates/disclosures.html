@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold" style="color: #1F4E79;">
+            <i class="bi bi-file-earmark-lock me-2"></i>Disclosure Workflow
+        </h2>
+        <p class="text-muted mb-0">Manage and approve personal data disclosure requests</p>
+    </div>
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newDisclosureModal">
+        <i class="bi bi-plus-circle me-2"></i>New Disclosure Request
+    </button>
+</div>
+
+<div class="card mb-4">
+    <div class="card-body py-2">
+        <div class="d-flex gap-2">
+            <a href="{{ url_for('disclosures') }}" class="btn btn-sm btn-outline-secondary">All</a>
+            <a href="{{ url_for('disclosures', status='Pending') }}" class="btn btn-sm btn-outline-warning">Pending</a>
+            <a href="{{ url_for('disclosures', status='Approved') }}" class="btn btn-sm btn-outline-success">Approved</a>
+            <a href="{{ url_for('disclosures', status='Rejected') }}" class="btn btn-sm btn-outline-danger">Rejected</a>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        {% if disclosures %}
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead style="background-color:#f8f9fa;">
+                    <tr>
+                        <th>#</th>
+                        <th>Title</th>
+                        <th>Requested By</th>
+                        <th>Date Submitted</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for d in disclosures %}
+                    <tr>
+                        <td class="text-muted small">{{ d['id'] }}</td>
+                        <td>
+                            <div class="fw-bold">{{ d['title'] }}</div>
+                            <div class="text-muted small">{{ d['description'][:60] }}...</div>
+                        </td>
+                        <td>{{ d['requested_by'] }}</td>
+                        <td class="small">{{ d['created_at'][:10] }}</td>
+                        <td>
+                            {% if d['status'] == 'Pending' %}
+                            <span class="badge bg-warning text-dark">Pending</span>
+                            {% elif d['status'] == 'Approved' %}
+                            <span class="badge bg-success">Approved</span>
+                            {% elif d['status'] == 'Rejected' %}
+                            <span class="badge bg-danger">Rejected</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if session['role'] == 'DPO' and d['status'] == 'Pending' %}
+                            <form method="POST" action="{{ url_for('update_disclosure', id=d['id']) }}" class="d-inline">
+                                <input type="hidden" name="action" value="approve">
+                                <button class="btn btn-sm btn-success me-1">
+                                    <i class="bi bi-check-lg"></i> Approve
+                                </button>
+                            </form>
+                            <form method="POST" action="{{ url_for('update_disclosure', id=d['id']) }}" class="d-inline">
+                                <input type="hidden" name="action" value="reject">
+                                <button class="btn btn-sm btn-danger">
+                                    <i class="bi bi-x-lg"></i> Reject
+                                </button>
+                            </form>
+                            {% else %}
+                            <span class="text-muted small">
+                                {% if d['approved_by'] %}By {{ d['approved_by'] }}{% else %}—{% endif %}
+                            </span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5 text-muted">
+            <i class="bi bi-inbox" style="font-size:48px;"></i>
+            <p class="mt-3">No disclosure requests found.</p>
+            <p class="small">Click "New Disclosure Request" to add one.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="modal fade" id="newDisclosureModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header" style="background-color:#1F4E79;">
+                <h5 class="modal-title text-white">
+                    <i class="bi bi-file-earmark-plus me-2"></i>New Disclosure Request
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{{ url_for('add_disclosure') }}">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Disclosure Title</label>
+                        <input type="text" name="title" class="form-control"
+                               placeholder="e.g. FOI Response — Housing Department" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Description</label>
+                        <textarea name="description" class="form-control" rows="4"
+                                  placeholder="Describe the nature of the personal data being disclosed..."
+                                  required></textarea>
+                    </div>
+                    <div class="alert alert-warning py-2 small">
+                        <i class="bi bi-exclamation-triangle me-1"></i>
+                        This request will be sent to the DPO for approval before any data is released.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-send me-1"></i>Submit for Approval
+                    </button>
+                    </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

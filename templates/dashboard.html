@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="mb-4">
+    <h2 class="fw-bold" style="color: #1F4E79;">
+        <i class="bi bi-speedometer2 me-2"></i>Dashboard
+    </h2>
+    <p class="text-muted">Welcome to CivicGuard — GDPR Compliance Process Management System</p>
+</div>
+
+<!-- Summary Cards -->
+<div class="row g-4 mb-4">
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-body d-flex align-items-center">
+                <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
+                     style="width:60px;height:60px;background-color:#FFF3CD;">
+                    <i class="bi bi-file-earmark-lock" style="font-size:28px;color:#856404;"></i>
+                </div>
+                <div>
+                    <div class="text-muted small">Pending Disclosures</div>
+                    <div class="fw-bold" style="font-size:32px;color:#1F4E79;">
+                        {{ disclosure_count }}
+                    </div>
+                    <a href="{{ url_for('disclosures') }}" class="small text-decoration-none">
+                        View all <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-body d-flex align-items-center">
+                <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
+                     style="width:60px;height:60px;background-color:#F8D7DA;">
+                    <i class="bi bi-exclamation-triangle" style="font-size:28px;color:#842029;"></i>
+                </div>
+                <div>
+                    <div class="text-muted small">Open Breaches</div>
+                    <div class="fw-bold" style="font-size:32px;color:#1F4E79;">
+                        {{ breach_count }}
+                    </div>
+                    <a href="{{ url_for('breaches') }}" class="small text-decoration-none">
+                        View all <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-body d-flex align-items-center">
+                <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
+                     style="width:60px;height:60px;background-color:#D1ECF1;">
+                    <i class="bi bi-person-lines-fill" style="font-size:28px;color:#0c5460;"></i>
+                </div>
+                <div>
+                    <div class="text-muted small">Open DSARs</div>
+                    <div class="fw-bold" style="font-size:32px;color:#1F4E79;">
+                        {{ dsar_count }}
+                    </div>
+                    <a href="{{ url_for('dsars') }}" class="small text-decoration-none">
+                        View all <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ICO Compliance Notice -->
+<div class="row g-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="fw-bold mb-3" style="color:#1F4E79;">
+                    <i class="bi bi-info-circle me-2"></i>UK GDPR Compliance Reminders
+                </h5>
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <div class="p-3 rounded" style="background-color:#FFF3CD;">
+                            <div class="fw-bold small mb-1">
+                                <i class="bi bi-file-earmark-lock me-1"></i>
+                                Disclosure Governance
+                            </div>
+                            <div class="small text-muted">
+                                All personal data disclosures must follow the 
+                                internal approval workflow before release.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="p-3 rounded" style="background-color:#F8D7DA;">
+                            <div class="fw-bold small mb-1">
+                                <i class="bi bi-clock me-1"></i>
+                                72-Hour Breach Rule
+                            </div>
+                            <div class="small text-muted">
+                                Data breaches must be reported to the ICO 
+                                within 72 hours of discovery under UK GDPR 
+                                Article 33.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="p-3 rounded" style="background-color:#D1ECF1;">
+                            <div class="fw-bold small mb-1">
+                                <i class="bi bi-person-check me-1"></i>
+                                DSAR Deadline
+                            </div>
+                            <div class="small text-muted">
+                                Data Subject Access Requests must be 
+                                completed within one calendar month under 
+                                UK GDPR Article 12.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
