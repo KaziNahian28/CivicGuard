@@ -39,6 +39,9 @@ Opened 5 August 2026. Keep in the repo root. Update as you go.
 | D27 | 5 Aug | DSAR | Em dash in Assign To placeholder text | No em dashes anywhere | Minor | Open | Ch4 screenshots |
 | D28 | 5 Aug | DSAR | The 30-day figure also appears in the post-submission confirmation banner: "DSAR logged. 30-day deadline set for 02 March 2026". Three locations in total with D24 | All three revised to one calendar month from the relevant time | **Blocker** | Open. Friday, same fix as D16 and D24 | Ch4, viva |
 | D29 | 5 Aug | DSAR | Test record 5 (Test Requester, received 2026-01-31) is functional test data | Remove before final screenshots, after the evidence screenshot is saved | Minor | Open. Saturday re-seed | Ch4 screenshots |
+| D30 | 5 Aug | DSAR | **Row order changes after every action.** Record 1 moved position between actions, causing a status change to be applied to the wrong record during testing. A compliance officer working a list would make the same error | Stable sort order, by deadline or by record number, unaffected by status changes | Major | Open. Real usability risk, not cosmetic | Ch4, Ch5 |
+| D31 | 5 Aug | DSAR | Days Left badge reads "1 days left" rather than "1 day left" | Correct singular form | Minor | Open | Ch4 screenshots |
+| D32 | 5 Aug | DSAR | Both action buttons remain available after a record advances to In Progress, so the advance action can be repeated | Controls reflect available transitions | Minor | Open. Confirm behaviour before deciding | Ch4 |
 
 **Severity rule for this week:** blockers fixed Saturday, majors only if they touch the five ICO scenarios, minors written up as known limitations if time runs out.
 
@@ -81,9 +84,10 @@ Every verified behaviour, with what proves it. This is what Chapter 5 is written
 | E8 | 5 Aug | A working three-state deadline display already exists in the DSAR module: overdue in red, due soon in amber (record 3, 1 day left), and completed. This is the pattern the Breach Tracker lacks (D10), so the fix has a working reference implementation within the same codebase | Screenshot, DSAR Manager list | Ch4 |
 | E9 | 5 Aug | **The 30-day error confirmed empirically, not inferred.** A test DSAR received 2026-01-31 returned a deadline of 2026-03-02. One calendar month from 31 January is 28 February, so the system granted two days with no legal basis. The confirmation banner states the fault explicitly: "DSAR logged. 30-day deadline set for 02 March 2026" | Screenshot, DSAR Manager list with record 5 and banner. **Retain as the "before" half of a before-and-after figure pair for Ch4** | Ch4, Ch5, viva |
 
-### Cross-cutting finding
+| E10 | 5 Aug | DSAR status transition works. Record 3 advanced from Open to In Progress with a confirmation banner, and the amber "1 days left" badge correctly persisted, since the request was not yet complete | Screenshot, DSAR Manager after advance | Ch4 |
+| E11 | 5 Aug | **Late completion presents as compliant, confirmed on a live record.** Record 1 (J. Whitmore), deadline 2026-07-08, showing 29 days overdue, was completed on 2026-08-05, being 28 days late. It now displays a green "Done" badge and "Completed 2026-08-05", visually identical to a request completed on time. The Overdue card fell from 3 to 2, so completing a late request removes it from the failure count entirely | Screenshot, DSAR Manager after completion. **Retain, cannot be recreated after Friday** | Ch4, Ch5, viva |
 
-**F1. The system tracks whether an action was taken, but not whether it was taken in time.** The same fault appears three times independently: a late ICO notification displays green (D8), a late DSAR completion displays green (D18), and the DSAR deadline itself runs two days long (D16, confirmed at E9). In every case the error direction favours the council, presenting compliance that is not present. The Disclosure Workflow escapes only because a disclosure carries no statutory deadline. Three of the eight blockers are one conceptual error repeated across modules. Worth stating directly in Ch5 as a finding of the testing phase rather than presenting the fixes without their history. Feeds Ch4, Ch5, viva.
+### Cross-cutting finding**F1. The system tracks whether an action was taken, but not whether it was taken in time.** The same fault appears three times independently: a late ICO notification displays green (D8), a late DSAR completion displays green (D18), and the DSAR deadline itself runs two days long (D16, confirmed at E9). In every case the error direction favours the council, presenting compliance that is not present. The Disclosure Workflow escapes only because a disclosure carries no statutory deadline. Three of the eight blockers are one conceptual error repeated across modules. Worth stating directly in Ch5 as a finding of the testing phase rather than presenting the fixes without their history. Feeds Ch4, Ch5, viva.
 
 ### Evaluation risk arising from testing
 
@@ -91,7 +95,7 @@ Every verified behaviour, with what proves it. This is what Chapter 5 is written
 
 **R2. The early-warning claim is not yet supported by the artefact.** The Breach Tracker argument rests on surfacing the deadline before it is missed, against an evidence base in which 47.5% of local government incidents were reported beyond 72 hours. With only two bands (D10) the badge turns red only once the deadline has already passed, which reports failure rather than preventing it. Fixing D10 is what makes the Chapter 5 claim defensible. Feeds Ch5, viva.
 
-**R3. The Lewisham scenario cannot currently be replayed as intended.** That case is in the evaluation set because 35% of requests were not answered within statutory deadlines. Under the present logic (D18) a request completed after its deadline displays a green "Done" badge, so the system cannot surface the failure it was built to surface. Fix required before the Sunday replay. Feeds Ch5.
+**R3. The Lewisham scenario cannot currently be replayed as intended.** That case is in the evaluation set because 35% of requests were not answered within statutory deadlines. Confirmed live at E11: a request completed 28 days after its deadline displays a green "Done" badge and is removed from the Overdue count. A council relying on this display would see a healthy DSAR position while failing in exactly the way Lewisham failed. D18 must be fixed before the Sunday replay. Feeds Ch5.
 
 **R4. Legal accuracy is the sharpest viva exposure.** The DSAR interface currently states a 30-day deadline (D16) where the law provides one calendar month, and anchors the period to receipt (D17) where Article 12A provides for the relevant time. An examiner reading the subtitle has an immediate line of questioning. Friday's rebuild resolves both, and having resolved them converts the weakness into evidence of currency with the Data (Use and Access) Act 2025. Feeds Ch4, Ch5, viva.
 
@@ -121,6 +125,7 @@ One folder per ICO case, five in total. Each holds the replay screenshots plus t
 | File | Shows | Status |
 |---|---|---|
 | `before_D16_dsar_30day_05aug.png` | DSAR row 5, received 2026-01-31, deadline 2026-03-02, with the "30-day statutory deadline" subtitle in frame. The "before" half of the Ch4 before-and-after pair | **Saved 5 Aug** |
+| `before_D18_late_completion_green_05aug.png` | DSAR list after completing record 1 (J. Whitmore) 28 days past deadline. Green "Done" badge, "Completed 2026-08-05", Overdue count fallen from 3 to 2. Evidence for the Lewisham scenario risk R3 | **To save 5 Aug** |
 
 **Highest-risk item is not the screenshots.** It is this log. Commit it to the repo now and after every working session. The screenshots are reproducible from the running system until Friday. The log is not reproducible at all.
 
@@ -143,7 +148,7 @@ Nothing is marked complete unless it was actually observed on screen or in code.
 | 9 | DSAR list and status display | Done, D16 to D19 |
 | 10 | New DSAR form fields | Done, D21 to D27 |
 | 11 | DSAR creation, deadline on a known date | Done, E9. Confirms D16 |
-| 12 | DSAR status advance and complete buttons | Outstanding |
+| 12 | DSAR status advance and complete buttons | Done, E10, E11. Confirms D18 |
 | 13 | Disclosure approve and reject as DPO | Outstanding |
 | 14 | Mark ICO Notified button | Outstanding |
 | 15 | Dashboard as officer | Outstanding |
