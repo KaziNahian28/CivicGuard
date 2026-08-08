@@ -73,6 +73,18 @@ def init_db():
     ''')
 
     cursor.execute('''
+        CREATE TABLE IF NOT EXISTS audit_log (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            record_type TEXT NOT NULL,
+            record_id INTEGER NOT NULL,
+            action TEXT NOT NULL,
+            performed_by TEXT NOT NULL,
+            performed_by_role TEXT NOT NULL,
+            reason TEXT,
+            performed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    ''')
+    cursor.execute('''
         INSERT OR IGNORE INTO users (username, password, role, full_name, department)
         VALUES (?, ?, ?, ?, ?)
     ''', ('admin', 'admin123', 'DPO', 'Data Protection Officer', 'Legal'))
@@ -171,12 +183,32 @@ def disclosures():
     conn = get_db()
     if status_filter:
         rows = conn.execute(
-            'SELECT * FROM disclosures WHERE status = ? ORDER BY created_at DESC',
+            '''SELECT d.*,
+                      (SELECT performed_at FROM audit_log
+                       WHERE record_type = 'disclosure' AND record_id = d.id
+                       ORDER BY id DESC LIMIT 1) AS last_action_at,
+                      (SELECT action FROM audit_log
+                       WHERE record_type = 'disclosure' AND record_id = d.id
+                       ORDER BY id DESC LIMIT 1) AS last_action,
+                       (SELECT reason FROM audit_log
+                       WHERE record_type = 'disclosure' AND record_id = d.id
+                       ORDER BY id DESC LIMIT 1) AS last_reason
+               FROM disclosures d WHERE d.status = ? ORDER BY d.created_at DESC''',
             (status_filter,)
         ).fetchall()
     else:
         rows = conn.execute(
-            'SELECT * FROM disclosures ORDER BY created_at DESC'
+            '''SELECT d.*,
+                      (SELECT performed_at FROM audit_log
+                       WHERE record_type = 'disclosure' AND record_id = d.id
+                       ORDER BY id DESC LIMIT 1) AS last_action_at,
+                      (SELECT action FROM audit_log
+                       WHERE record_type = 'disclosure' AND record_id = d.id
+                       ORDER BY id DESC LIMIT 1) AS last_action,
+                       (SELECT reason FROM audit_log
+                       WHERE record_type = 'disclosure' AND record_id = d.id
+                       ORDER BY id DESC LIMIT 1) AS last_reason
+               FROM disclosures d ORDER BY d.created_at DESC'''
         ).fetchall()
     conn.close()
     return render_template('disclosures.html', disclosures=rows)
@@ -203,12 +235,19 @@ def update_disclosure(id):
         flash('Only the DPO can approve or reject disclosures.', 'danger')
         return redirect(url_for('disclosures'))
     action = request.form['action']
+    reason = request.form.get('reason') or None
     status = 'Approved' if action == 'approve' else 'Rejected'
     conn = get_db()
     conn.execute(
         '''UPDATE disclosures SET status = ?, approved_by = ?,
            updated_at = CURRENT_TIMESTAMP WHERE id = ?''',
         (status, session['full_name'], id)
+    )
+    conn.execute(
+        '''INSERT INTO audit_log
+           (record_type, record_id, action, performed_by, performed_by_role, reason)
+           VALUES (?, ?, ?, ?, ?, ?)''',
+        ('disclosure', id, status, session['full_name'], session['role'], reason)
     )
     conn.commit()
     conn.close()

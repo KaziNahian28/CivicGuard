@@ -66,15 +66,21 @@
                                     <i class="bi bi-check-lg"></i> Approve
                                 </button>
                             </form>
-                            <form method="POST" action="{{ url_for('update_disclosure', id=d['id']) }}" class="d-inline">
-                                <input type="hidden" name="action" value="reject">
-                                <button class="btn btn-sm btn-danger">
-                                    <i class="bi bi-x-lg"></i> Reject
-                                </button>
-                            </form>
+                            <form method="POST" action="{{ url_for('update_disclosure', id=d['id']) }}" class="d-inline"
+                              onsubmit="var r = prompt('Reason for rejection:'); if (!r) return false; this.reason.value = r;">
+                            <input type="hidden" name="action" value="reject">
+                            <input type="hidden" name="reason" value="">
+                            <button class="btn btn-sm btn-danger">
+                                <i class="bi bi-x-lg"></i> Reject
+                            </button>
+                        </form>
                             {% else %}
                             <span class="text-muted small">
-                                {% if d['approved_by'] %}By {{ d['approved_by'] }}{% else %}—{% endif %}
+                              {% if d['approved_by'] %}
+                        {{ d['last_action'] or d['status'] }} by {{ d['approved_by'] }}
+                        {% if d['last_action_at'] %}<br>{{ d['last_action_at'] }}{% endif %}
+                        {% if d['last_reason'] %}<br><em>Reason: {{ d['last_reason'] }}</em>{% endif %}
+                    {% else %}-{% endif %}
                             </span>
                             {% endif %}
                         </td>

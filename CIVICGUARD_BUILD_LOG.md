@@ -13,7 +13,7 @@ Opened 5 August 2026. Keep in the repo root. Update as you go.
 | D1 | 5 Aug | Disclosure | DPO badge and Approve/Reject buttons visible when officer expected | Officer session shows Officer badge, no approval controls | Blocker | **Closed.** Wrong login, not a defect. Officer session verified correct | Ch5 |
 | D2 | 5 Aug | Disclosure | New Disclosure Request form captures Title and Description only | Form should capture recipient and lawful basis | Major | **Open.** Fix before Sunday scenario replay | Ch4, Ch5 |
 | D3 | 5 Aug | Disclosure | Em dash in Disclosure Title placeholder text | No em dashes anywhere in the interface | Minor | Open | Ch4 screenshots |
-| D4 | 5 Aug | Disclosure | Em dash used as empty-state placeholder in Actions column | Hyphen or "No actions available" | Minor | Open | Ch4 screenshots |
+| D4 | 5 Aug | Disclosure | Em dash used as empty-state placeholder in Actions column | Hyphen or "No actions available" | Minor | **Closed 7 Aug** | Ch4 screenshots |
 | D5 | 5 Aug | Disclosure | Test record 4 contains typo "Submisison" | Clean test data before final screenshots | Minor | Open. Clear on Saturday re-seed | Ch4 screenshots |
 | D6 | 5 Aug | Disclosure | Seed data titles contain em dashes (rows 1, 2, 3) | No em dashes in seeded records | Minor | Open. Fix in seed_data.py, re-seed Saturday | Ch4 screenshots |
 | D7 | 5 Aug | Disclosure | `update_disclosure()` treats any `action` value other than `approve` as a rejection, rather than validating against an expected set | Unrecognised input should error, not silently reject | Minor | Open. Safe default so not urgent, but note honestly in Ch4 | Ch4 |
@@ -40,6 +40,7 @@ Opened 5 August 2026. Keep in the repo root. Update as you go.
 | D28 | 5 Aug | DSAR | The 30-day figure also appears in the post-submission confirmation banner: "DSAR logged. 30-day deadline set for 02 March 2026". Three locations in total with D24 | All three revised to one calendar month from the relevant time | **Blocker** | Open. Friday, same fix as D16 and D24 | Ch4, viva |
 | D45 | 5 Aug | DSAR | **Future receipt date accepted.** A DSAR entered with receipt 2027-02-20 saved and displays 228 days left in green, counted under On Track, which rose from 0 to 1. No negative value results, so the display is internally coherent, but a request received in the future is reported as a healthy open case. Same absent guard as D43 | Receipt date later than the present rejected on submission | Major | Open. Friday, alongside the relevant-time work | Ch4, Ch5 |
 | D46 | 5 Aug | DSAR | Test record 6 (Stephen King, received 2027-02-20) is functional test data | Remove before final screenshots | Minor | Open. Saturday re-seed | Ch4 screenshots |
+| D47 | 7 Aug | Disclosure | Disclosure record 5 ("request test") is functional test data | Remove before final screenshots | Minor | Open. Saturday re-seed | Ch4 screenshots |
 | D44 | 5 Aug | Breach | Breach record 5 (Unauthorised file disclosure, discovery 2027-03-15) is functional test data | Remove before final screenshots | Minor | Open. Saturday re-seed | Ch4 screenshots |
 | D29 | 5 Aug | DSAR | Test record 5 (Test Requester, received 2026-01-31) is functional test data | Remove before final screenshots, after the evidence screenshot is saved | Minor | Open. Saturday re-seed | Ch4 screenshots |
 | D30 | 5 Aug | DSAR | **Row order changes after every action.** Record 1 moved position between actions, causing a status change to be applied to the wrong record during testing. A compliance officer working a list would make the same error | Stable sort order, by deadline or by record number, unaffected by status changes | Major | Open. Real usability risk, not cosmetic | Ch4, Ch5 |
@@ -49,9 +50,9 @@ Opened 5 August 2026. Keep in the repo root. Update as you go.
 | D34 | 5 Aug | Dashboard | **The system contradicts itself on the DSAR deadline.** The dashboard reminder card correctly states "within one calendar month under UK GDPR Article 12", while the DSAR module states 30 days in three places (D16, D24, D28) | Consistent statement of one calendar month from the relevant time across all screens | **Blocker** | Open. Friday, resolves with D16 | Ch4, viva |
 | D35 | 5 Aug | Dashboard | Reminder card cites UK GDPR Article 12. After the Friday rebuild the governing provision is Article 12A as inserted by the Data (Use and Access) Act 2025, s. 76 | Citation updated to Art. 12A | Minor | Open. Friday | Ch4, viva |
 | D36 | 5 Aug | Dashboard | Em dash in the welcome line, "Welcome to CivicGuard — GDPR Compliance Process Management System" | No em dashes anywhere | Minor | Open | Ch4 screenshots |
-| D37 | 5 Aug | Disclosure | **No decision date displayed.** Every decided record reads "By Data Protection Officer" with no timestamp. Record 4, approved seconds earlier, is indistinguishable from record 2, approved weeks earlier. `updated_at` is written to the database but discarded by the interface. An approval gate that cannot state when approval occurred cannot demonstrate that approval preceded release, which is the mechanism the module exists to provide | Decision date and time displayed against every decided record | **Blocker** | Open. Thursday | Ch4, Ch5, viva |
-| D38 | 5 Aug | Disclosure | **Approve and reject are indistinguishable in the audit line.** Both display "By Data Protection Officer". Only the status badge carries the decision, so a subsequent status change would leave the original decision untraceable | Audit line records the action taken, not only the actor | **Blocker** | Open. Thursday | Ch4, Ch5 |
-| D39 | 5 Aug | Disclosure | **No rejection reason captured.** A DPO can refuse a disclosure without recording why | Free-text reason required on rejection, retained in the audit record | Major | Open. Thursday | Ch4, Ch5, viva |
+| D37 | 5 Aug | Disclosure | **CLOSED 7 Aug.** No decision date displayed. Every decided record reads "By Data Protection Officer" with no timestamp. Record 4, approved seconds earlier, is indistinguishable from record 2, approved weeks earlier. `updated_at` is written to the database but discarded by the interface. An approval gate that cannot state when approval occurred cannot demonstrate that approval preceded release, which is the mechanism the module exists to provide | Decision date and time displayed against every decided record | **Blocker** | **Closed 7 Aug** | Ch4, Ch5, viva |
+| D38 | 5 Aug | Disclosure | **CLOSED 7 Aug.** Approve and reject are indistinguishable in the audit line. Both display "By Data Protection Officer". Only the status badge carries the decision, so a subsequent status change would leave the original decision untraceable | Audit line records the action taken, not only the actor | **Blocker** | **Closed 7 Aug** | Ch4, Ch5 |
+| D39 | 5 Aug | Disclosure | **CLOSED 8 Aug.** No rejection reason captured. A DPO can refuse a disclosure without recording why | Free-text reason required on rejection, retained in the audit record | Major | **Closed 8 Aug** | Ch4, Ch5, viva |
 | D43 | 5 Aug | Breach | **Future discovery date accepted.** A breach entered with discovery 2027-03-15 saved successfully and displays -5320h in a green badge. Worse, it counted toward the Warning card, which rose from 1 to 2, so a breach discovered in the future is treated as within its 72-hour window. The status logic tests whether elapsed time exceeds 72 and treats everything below as compliant, negative values included | Discovery date later than the present rejected on submission | Major | Open. One guard clause inside Saturday's breach status rewrite (D8, D9, D10), so effectively no additional cost | Ch4, Ch5 |
 | D41 | 5 Aug | Disclosure | **No active state on filter buttons.** All four filters (All, Pending, Approved, Rejected) appear identical whether selected or not, so the applied filter is invisible | Selected filter visually distinguished | Major | Open | Ch4 |
 | D42 | 5 Aug | Disclosure | **Empty-state message misleads when a filter is applied.** Filtering to Pending with no pending records displays "No disclosure requests found. Click New Disclosure Request to add one", implying the system holds no records at all when four exist. Combined with D41 a user has no indication a filter is active | Message reflects the filter, e.g. "No pending disclosure requests" | Major | Open | Ch4, Ch5 |
@@ -76,6 +77,9 @@ Reasoning: no dependency for the five scenario replays that constitute the evalu
 
 **DD4. Commercial tool comparison is documentation-based, not hands-on.**
 Reasoning: OneTrust is demo-only and the Keepabl trial requires a business signup, so neither is accessible under a student licence. Stated openly as a method limitation. Feeds Ch5 (evaluation method and its limitations).
+
+**DD7. Rejection requires a stated reason; approval does not.**
+The reject form blocks submission without a reason, while approval proceeds without one. The asymmetry is deliberate: refusing a data subject or a requesting body access to personal data is the decision most likely to be challenged and therefore the one requiring recorded justification. Approvals are already evidenced by actor, authority and timestamp. Feeds Ch4 (design rationale), viva.
 
 **DD6. Field validation is browser-level, not server-level.**
 All three forms block empty submission through HTML `required` attributes, so the Flask routes are not consulted. This is sufficient for ordinary use and for demonstration, but can be bypassed by a request sent directly or by editing the page in developer tools, after which the server accepts whatever it receives. Scoped out this week deliberately: it is not a blocker, no ICO scenario depends on it, and the build window to 10 August is fully committed. Worth stating that the security-critical server-side checks are present, namely authentication (E17) and role authorisation (E4); it is only field validation that relies on the browser. Feeds Ch4 (implementation), Ch6 (future work).
@@ -129,6 +133,74 @@ Every verified behaviour, with what proves it. This is what Chapter 5 is written
 
 ---
 
+## C2. BUILD WORK COMPLETED
+
+Running record of changes made to the artefact, so Chapter 4 can be written from what was actually done rather than from recollection.
+
+### Thursday 6 August and Friday 7 August, audit trail
+
+**Step 1. audit_log table created.** Added as a `CREATE TABLE IF NOT EXISTS` block inside `init_db()` in `app.py`, positioned after the `dsars` table and before the user seed inserts. Verified present in the database alongside users, disclosures, breaches and dsars.
+
+Columns and their rationale:
+
+| Column | Purpose |
+|---|---|
+| `record_type` | Module the action belongs to, so one table can serve disclosures, breaches and DSARs |
+| `record_id` | The record acted upon within that module |
+| `action` | What was done, e.g. Approved, Rejected |
+| `performed_by` | Name taken from the session |
+| `performed_by_role` | Authority held at the moment of action. Stored separately because roles change over time and the record must reflect authority as it was, not as it is now |
+| `reason` | Free text, nullable. Populated for rejections at step 4 |
+| `performed_at` | Timestamp, defaulting to CURRENT_TIMESTAMP |
+
+Design principle: no row is ever updated. Every action inserts. This is what distinguishes an audit trail from a status field, and it is the direct answer to D37 and D38.
+
+**Step 2. Write on approval and rejection.** An `INSERT INTO audit_log` added to `update_disclosure()` in `app.py`, placed between the existing UPDATE and `conn.commit()` so both writes commit together. Parameterised with placeholders rather than string concatenation, which also addresses SQL injection exposure.
+
+Verified live. First audit row written on 7 August:
+
+`(1, 'disclosure', 5, 'Approved', 'Data Protection Officer', 'DPO', None, '2026-08-07 16:59:32')`
+
+This timestamp is the capability the system lacked at test 13. It is now permanent and cannot be overwritten by subsequent actions on the same record.
+
+**Step 3. Display of audit information in the interface.** Complete.
+
+Two changes. First, the `disclosures()` route in `app.py`: both queries, filtered and unfiltered, were extended with correlated subqueries fetching the most recent audit entry for each record, exposed as `last_action_at` and `last_action`. Records with no audit entry return null rather than failing, which matters because all records decided before 7 August predate the table.
+
+Second, `templates/disclosures.html`, the Actions column. The previous line displayed `By {{ approved_by }}` with an em dash placeholder. It now displays the action, the actor, and the timestamp on a second line, falling back to the current status where no audit entry exists. The em dash placeholder was replaced with a hyphen, closing D4.
+
+Verified on screen 7 August. Record 5 displays "Approved by Data Protection Officer" with "2026-08-07 16:59:32" beneath. Records 1 to 4, decided before the audit table existed, display action and actor without a timestamp, which is an honest representation of what the system knows about them.
+
+**Closes D37** (no decision date displayed) and **D38** (approve and reject indistinguishable in the audit line). **Closes D4** (em dash placeholder).
+
+**Step 4. Rejection reason capture.** Complete, 8 August. Closes D39.
+
+Three changes. First, `templates/disclosures.html`, the reject form: an `onsubmit` handler now prompts for a reason, and a hidden `reason` input carries it with the submission. If the reason is empty or cancelled, `return false` halts the submission, so a rejection cannot be recorded without stated reasoning. The approve form was deliberately left unchanged (see DD7).
+
+Second, `update_disclosure()` in `app.py`: reads `request.form.get('reason') or None` and passes it into the audit insert in place of the previous hard-coded `None`. `.get()` rather than subscript because approvals submit no reason field.
+
+Third, display: both `disclosures()` queries gained a `last_reason` correlated subquery, and the Actions column in the template renders it in italics beneath the timestamp.
+
+Verified live 8 August. Record 6 displays "Rejected by Data Protection Officer", "2026-08-08 15:27:28", and "Reason: No lawful basis identified for third-party release". Audit row confirmed in the database:
+
+`(2, 'disclosure', 6, 'Rejected', 'Data Protection Officer', 'DPO', 'No lawful basis identified for third-party release', '2026-08-08 15:27:28')`
+
+### Audit trail complete
+
+All four steps done. The Disclosure Workflow can now state, for any record, what was decided, by whom, under what authority, when, and on what reasoning, with every action retained rather than overwritten.
+
+**Defects closed by this work:** D4, D37, D38, D39.
+
+### Note for Chapter 4
+
+On 8 August the list displayed records at three levels of evidential completeness simultaneously: record 3 (decided 13 July) showing action and actor only; record 5 (approved 7 August) showing action, actor and timestamp; record 6 (rejected 8 August) showing action, actor, timestamp and reasoning. A single screenshot capturing all three demonstrates what each stage of the audit work added. This contrast is destroyed by the Saturday re-seed and must be captured before then.
+
+### Note for Chapter 4
+
+The contrast between record 5 and records 1 to 4 on 7 August is a useful illustration of what the audit trail adds, since the older records genuinely cannot be dated. This contrast disappears at the Saturday re-seed, so it must be captured before then if it is to be used.
+
+---
+
 ## D. EVIDENCE CAPTURE PROTOCOL
 
 Governs what gets saved and when, so nothing one-time-only is lost.
@@ -155,7 +227,11 @@ One folder per ICO case, five in total. Each holds the replay screenshots plus t
 | `before_D16_dsar_30day_05aug.png` | DSAR row 5, received 2026-01-31, deadline 2026-03-02, with the "30-day statutory deadline" subtitle in frame. The "before" half of the Ch4 before-and-after pair | **Saved 5 Aug** |
 | `before_D18_late_completion_green_05aug.png` | DSAR list after completing record 1 (J. Whitmore) 28 days past deadline. Green "Done" badge, "Completed 2026-08-05", Overdue count fallen from 3 to 2. Evidence for the Lewisham scenario risk R3 | **To save 5 Aug** |
 | `before_D16_dashboard_states_calendar_month_05aug.png` | DPO dashboard reminder card stating one calendar month under Art. 12, contradicting the DSAR module. Second frame of the E13 pair | **To save 5 Aug** |
-| `before_D8_late_notification_green_05aug.png` | Breach Tracker after marking record 1 notified 26 days late. Green badge, OVERDUE label gone, Critical count fallen from 2 to 1. Strongest single image for the DPP Law scenario risk R1 | **To save 5 Aug** |
+| `before_D8_late_notification_green_05aug.png` | Breach Tracker after marking record 1 notified 26 days late. Green badge, OVERDUE label gone, Critical count fallen from 2 to 1. Strongest single image for the DPP Law scenario risk R1 | **Saved 5 Aug** |
+| `audit_log_first_write_07aug.png` | Terminal output showing the first audit row written, with timestamp to the second. Raw proof that the audit trail persists actions rather than overwriting state | **To save 7 Aug** |
+| `after_D37_audit_display_07aug.png` | Disclosure list showing record 5 with action, actor and timestamp, against records 1 to 4 which predate the audit table and carry no date. The "after" half of the D37 before-and-after pair | **Saved 7 Aug** |
+| `after_D39_rejection_reason_08aug.png` | Disclosure list showing record 6 with action, actor, timestamp and reasoning, against record 5 (no reason) and record 3 (no timestamp). Three levels of evidential completeness in one frame | **To save 8 Aug, before re-seed** |
+| `audit_log_with_reason_08aug.png` | Terminal output showing both audit rows, an approval with no reason and a rejection with reasoning captured. Proof the trail persists as data, not only as display | **To save 8 Aug** |
 
 **Highest-risk item is not the screenshots.** It is this log. Commit it to the repo now and after every working session. The screenshots are reproducible from the running system until Friday. The log is not reproducible at all.
 
