@@ -71,6 +71,17 @@ def init_db():
             completed_at TIMESTAMP
         )
     ''')
+    for column, definition in [
+        ('identity_confirmed_at', 'TIMESTAMP'),
+        ('fee_paid_at', 'TIMESTAMP'),
+        ('extension_applied', 'INTEGER DEFAULT 0'),
+        ('extension_reason', 'TEXT'),
+        ('relevant_time', 'TIMESTAMP')
+    ]:
+        try:
+            cursor.execute(f'ALTER TABLE dsars ADD COLUMN {column} {definition}')
+        except sqlite3.OperationalError:
+            pass
 
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS audit_log (
@@ -96,6 +107,25 @@ def init_db():
 
     conn.commit()
     conn.close()
+
+def calculate_relevant_time(received_at, identity_confirmed_at=None, fee_paid_at=None):
+    candidates = [d for d in [received_at, identity_confirmed_at, fee_paid_at] if d]
+    return max(candidates)
+
+
+def add_calendar_month(date_str, months=1):
+    from datetime import datetime
+    d = datetime.fromisoformat(str(date_str)[:10])
+    month = d.month - 1 + months
+    year = d.year + month // 12
+    month = month % 12 + 1
+    day = d.day
+    while True:
+        try:
+            return datetime(year, month, day).date().isoformat()
+        except ValueError:
+            day -= 1
+    
 
 def get_hours_elapsed(discovered_at_str):
     try:
@@ -335,21 +365,25 @@ def add_dsar():
     request_details = request.form['request_details']
     received_at = request.form['received_at']
     assigned_to = request.form.get('assigned_to', '')
-    received_date = datetime.strptime(received_at, '%Y-%m-%d')
-    deadline = received_date + timedelta(days=30)
+    identity_confirmed_at = request.form.get('identity_confirmed_at') or None
+    fee_paid_at = request.form.get('fee_paid_at') or None
+    relevant_time = calculate_relevant_time(received_at, identity_confirmed_at, fee_paid_at)
+    deadline = add_calendar_month(relevant_time)
     conn = get_db()
     conn.execute(
         '''INSERT INTO dsars
-           (requester_name, requester_email, request_details,
-            received_at, deadline, assigned_to)
-           VALUES (?, ?, ?, ?, ?, ?)''',
+            (requester_name, requester_email, request_details,
+             received_at, deadline, assigned_to,
+             identity_confirmed_at, fee_paid_at, relevant_time)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)''',
         (requester_name, requester_email, request_details,
-         received_at, deadline.strftime('%Y-%m-%d'), assigned_to)
+         received_at, deadline, assigned_to,
+         identity_confirmed_at, fee_paid_at, relevant_time)
     )
     conn.commit()
     conn.close()
-    flash('DSAR logged. 30-day deadline set for ' +
-          deadline.strftime('%d %B %Y') + '.', 'success')
+    flash('DSAR logged. Deadline set for ' + deadline +
+          ', one calendar month from the relevant time.', 'success')
     return redirect(url_for('dsars'))
 
 @app.route('/dsars/update/<int:id>', methods=['POST'])

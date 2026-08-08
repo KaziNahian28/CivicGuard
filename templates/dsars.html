@@ -84,7 +84,11 @@
                         <td class="small">{{ d.deadline[:10] }}</td>
                         <td>
                             {% if d.status == 'Completed' %}
-                            <span class="badge bg-success">Done</span>
+                                {% if d.completed_at and d.completed_at[:10] > d.deadline[:10] %}
+                                <span class="badge bg-danger">Completed late</span>
+                                {% else %}
+                                <span class="badge bg-success">Completed on time</span>
+                                {% endif %}
                             {% elif d.days_remaining < 0 %}
                             <span class="badge bg-danger">
                                 {{ d.days_remaining|abs }} days overdue
@@ -160,11 +164,9 @@
             </div>
             <form method="POST" action="{{ url_for('add_dsar') }}">
                 <div class="modal-body">
-                    <div class="alert alert-info py-2 small mb-3">
-                        <i class="bi bi-clock me-1"></i>
-                        <strong>30-day deadline applies.</strong>
-                        The deadline will be calculated automatically from the date received.
-                    </div>
+                    <strong>One calendar month applies.</strong>
+                            The deadline runs from the relevant time, being the latest of the date received,
+                            the date identity was confirmed, or the date any fee was paid (UK GDPR Art. 12A).
                     <div class="mb-3">
                         <label class="form-label fw-bold">Requester Full Name</label>
                         <input type="text" name="requester_name" class="form-control"
@@ -186,10 +188,21 @@
                         <input type="date" name="received_at" class="form-control" required>
                     </div>
                     <div class="mb-3">
+                            <label class="form-label fw-bold">Date Identity Confirmed</label>
+                            <input type="date" name="identity_confirmed_at" class="form-control">
+                            <div class="form-text">Leave blank if identity was not in doubt.</div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Date Fee Paid</label>
+                            <input type="date" name="fee_paid_at" class="form-control">
+                            <div class="form-text">Leave blank if no fee was charged.</div>
+                        </div>
+                    <div class="mb-3">
                         <label class="form-label fw-bold">Assign To</label>
                         <input type="text" name="assigned_to" class="form-control"
-                               placeholder="e.g. Sarah Jones — Data Team">
+                               placeholder="e.g. Sarah Jones, Data Team">
                     </div>
+                    
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" 
