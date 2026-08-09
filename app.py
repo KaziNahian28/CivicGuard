@@ -126,8 +126,7 @@ def add_calendar_month(date_str, months=1):
         except ValueError:
             day -= 1
     
-
-def get_hours_elapsed(discovered_at_str):
+def get_hours_elapsed(discovered_at_str, end_at_str=None):
     try:
         discovered = datetime.strptime(discovered_at_str[:16], '%Y-%m-%dT%H:%M')
     except:
@@ -135,7 +134,17 @@ def get_hours_elapsed(discovered_at_str):
             discovered = datetime.strptime(discovered_at_str[:16], '%Y-%m-%d %H:%M')
         except:
             return 0
-    elapsed = datetime.now() - discovered
+    if end_at_str:
+        try:
+            end = datetime.strptime(str(end_at_str)[:16], '%Y-%m-%d %H:%M')
+        except:
+            try:
+                end = datetime.strptime(str(end_at_str)[:16], '%Y-%m-%dT%H:%M')
+            except:
+                end = datetime.now()
+    else:
+        end = datetime.now()
+    elapsed = end - discovered
     return int(elapsed.total_seconds() / 3600)
 
 def get_days_remaining(deadline_str):
@@ -298,7 +307,10 @@ def breaches():
     breaches_list = []
     for b in rows:
         b_dict = dict(b)
-        b_dict['hours_elapsed'] = get_hours_elapsed(b_dict['discovered_at'])
+        b_dict['hours_elapsed'] = get_hours_elapsed(
+                b_dict['discovered_at'], b_dict.get('ico_notified_at'))
+        b_dict['notified_late'] = bool(
+                b_dict.get('ico_notified') and b_dict['hours_elapsed'] > 72)
         breaches_list.append(b_dict)
     return render_template('breaches.html', breaches=breaches_list)
 

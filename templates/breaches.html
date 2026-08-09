@@ -15,29 +15,39 @@
 
 <!-- Summary Strip -->
 <div class="row g-3 mb-4">
-    <div class="col-md-4">
+    <div class="col-md-3">
         <div class="p-3 rounded text-center" style="background-color:#F8D7DA;">
-            <div class="fw-bold" style="color:#842029;">Critical — Over 72 Hours</div>
+            <div class="fw-bold" style="color:#842029;">Overdue, not notified</div>
             <div style="font-size:28px;font-weight:bold;color:#842029;">
-                {{ breaches | selectattr('hours_elapsed', 'gt', 72) | 
+                {{ breaches | selectattr('hours_elapsed', 'gt', 72) |
                    selectattr('ico_notified', 'equalto', 0) | list | length }}
             </div>
         </div>
     </div>
-    <div class="col-md-4">
+    <div class="col-md-3">
         <div class="p-3 rounded text-center" style="background-color:#FFF3CD;">
-            <div class="fw-bold" style="color:#856404;">Warning — Under 72 Hours</div>
+            <div class="fw-bold" style="color:#856404;">Urgent, under 24 hours left</div>
             <div style="font-size:28px;font-weight:bold;color:#856404;">
-                {{ breaches | selectattr('hours_elapsed', 'le', 72) | 
+                {{ breaches | selectattr('hours_elapsed', 'gt', 48) |
+                   selectattr('hours_elapsed', 'le', 72) |
                    selectattr('ico_notified', 'equalto', 0) | list | length }}
             </div>
         </div>
     </div>
-    <div class="col-md-4">
-        <div class="p-3 rounded text-center" style="background-color:#D1ECF1;">
-            <div class="fw-bold" style="color:#0c5460;">ICO Notified</div>
-            <div style="font-size:28px;font-weight:bold;color:#0c5460;">
-                {{ breaches | selectattr('ico_notified', 'equalto', 1) | list | length }}
+    <div class="col-md-3">
+        <div class="p-3 rounded text-center" style="background-color:#D1E7DD;">
+            <div class="fw-bold" style="color:#0f5132;">Notified within 72 hours</div>
+            <div style="font-size:28px;font-weight:bold;color:#0f5132;">
+                {{ breaches | selectattr('ico_notified', 'equalto', 1) |
+                   rejectattr('notified_late') | list | length }}
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="p-3 rounded text-center" style="background-color:#F8D7DA;">
+            <div class="fw-bold" style="color:#842029;">Notified late</div>
+            <div style="font-size:28px;font-weight:bold;color:#842029;">
+                {{ breaches | selectattr('notified_late') | list | length }}
             </div>
         </div>
     </div>
@@ -62,7 +72,7 @@
                 </thead>
                 <tbody>
                     {% for b in breaches %}
-                    <tr class="{{ 'table-danger' if b.hours_elapsed > 72 and not b.ico_notified else '' }}">
+                    <tr class="{{ 'table-danger' if (b.hours_elapsed > 72 and not b.ico_notified) or b.notified_late else '' }}">
                         <td class="text-muted small">{{ b.id }}</td>
                         <td>
                             <div class="fw-bold">{{ b.title }}</div>
@@ -70,18 +80,28 @@
                         </td>
                         <td class="small">{{ b.discovered_at[:16] }}</td>
                         <td>
-                            {% if b.hours_elapsed > 72 and not b.ico_notified %}
-                            <span class="badge bg-danger">
-                                {{ b.hours_elapsed }}h — OVERDUE
-                            </span>
-                            {% elif b.hours_elapsed > 48 and not b.ico_notified %}
-                            <span class="badge bg-warning text-dark">
-                                {{ b.hours_elapsed }}h — Urgent
-                            </span>
+                            {% if b.ico_notified %}
+                                {% if b.notified_late %}
+                                <span class="badge bg-danger">
+                                    {{ b.hours_elapsed }}h to notify, LATE
+                                </span>
+                                {% else %}
+                                <span class="badge bg-success">
+                                    {{ b.hours_elapsed }}h to notify
+                                </span>
+                                {% endif %}
+                            {% elif b.hours_elapsed > 72 %}
+                                <span class="badge bg-danger">
+                                    {{ b.hours_elapsed }}h, OVERDUE
+                                </span>
+                            {% elif b.hours_elapsed > 48 %}
+                                <span class="badge bg-warning text-dark">
+                                    {{ b.hours_elapsed }}h, URGENT
+                                </span>
                             {% else %}
-                            <span class="badge bg-success">
-                                {{ b.hours_elapsed }}h
-                            </span>
+                                <span class="badge bg-success">
+                                    {{ b.hours_elapsed }}h
+                                </span>
                             {% endif %}
                         </td>
                         <td>
@@ -155,7 +175,7 @@
                     <div class="mb-3">
                         <label class="form-label fw-bold">Breach Title</label>
                         <input type="text" name="title" class="form-control"
-                               placeholder="e.g. Unauthorised email disclosure — Housing data" 
+                               placeholder="e.g. Unauthorised email disclosure, housing data" 
                                required>
                     </div>
                     <div class="mb-3">
