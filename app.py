@@ -191,7 +191,6 @@ def logout():
     return redirect(url_for('login'))
 
 # ── DASHBOARD ─────────────────────────────────────────────────────
-
 @app.route('/dashboard')
 def dashboard():
     if 'user' not in session:
@@ -206,11 +205,39 @@ def dashboard():
     dsar_count = conn.execute(
         'SELECT COUNT(*) FROM dsars WHERE status != "Completed"'
     ).fetchone()[0]
+
+    dsar_overdue = conn.execute(
+        '''SELECT COUNT(*) FROM dsars
+           WHERE status != "Completed" AND date(deadline) < date("now")'''
+    ).fetchone()[0]
+    dsar_late_completed = conn.execute(
+        '''SELECT COUNT(*) FROM dsars
+           WHERE status = "Completed" AND completed_at IS NOT NULL
+           AND date(completed_at) > date(deadline)'''
+    ).fetchone()[0]
+
+    breach_rows = conn.execute('SELECT * FROM breaches').fetchall()
     conn.close()
+
+    breach_overdue = 0
+    breach_late_notified = 0
+    for b in breach_rows:
+        b = dict(b)
+        hours = get_hours_elapsed(b['discovered_at'], b.get('ico_notified_at'))
+        if b.get('ico_notified'):
+            if hours > 72:
+                breach_late_notified += 1
+        elif hours > 72:
+            breach_overdue += 1
+
     return render_template('dashboard.html',
                            disclosure_count=disclosure_count,
                            breach_count=breach_count,
-                           dsar_count=dsar_count)
+                           dsar_count=dsar_count,
+                           dsar_overdue=dsar_overdue,
+                           dsar_late_completed=dsar_late_completed,
+                           breach_overdue=breach_overdue,
+                           breach_late_notified=breach_late_notified)
 
 # ── DISCLOSURES ───────────────────────────────────────────────────
 

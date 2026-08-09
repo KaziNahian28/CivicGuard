@@ -5,7 +5,69 @@
     <h2 class="fw-bold" style="color: #1F4E79;">
         <i class="bi bi-speedometer2 me-2"></i>Dashboard
     </h2>
-    <p class="text-muted">Welcome to CivicGuard — GDPR Compliance Process Management System</p>
+    <p class="text-muted">Welcome to CivicGuard, a GDPR Compliance Process Management System</p>
+</div>
+
+<!-- Attention Required -->
+{% set total_risk = breach_overdue + breach_late_notified + dsar_overdue + dsar_late_completed %}
+<div class="card mb-4 {{ 'border-danger' if total_risk else 'border-success' }}">
+    <div class="card-body">
+        {% if total_risk %}
+        <h5 class="fw-bold mb-3" style="color:#842029;">
+            <i class="bi bi-exclamation-octagon me-2"></i>Attention required
+        </h5>
+        <div class="row g-3">
+            {% if breach_overdue %}
+            <div class="col-md-3">
+                <div class="p-3 rounded text-center" style="background-color:#F8D7DA;">
+                    <div style="font-size:28px;font-weight:bold;color:#842029;">{{ breach_overdue }}</div>
+                    <div class="small fw-bold" style="color:#842029;">
+                        Breaches past 72 hours, not notified
+                    </div>
+                    <a href="{{ url_for('breaches') }}" class="small text-decoration-none">Review</a>
+                </div>
+            </div>
+            {% endif %}
+            {% if breach_late_notified %}
+            <div class="col-md-3">
+                <div class="p-3 rounded text-center" style="background-color:#F8D7DA;">
+                    <div style="font-size:28px;font-weight:bold;color:#842029;">{{ breach_late_notified }}</div>
+                    <div class="small fw-bold" style="color:#842029;">
+                        Breaches notified after the deadline
+                    </div>
+                    <a href="{{ url_for('breaches') }}" class="small text-decoration-none">Review</a>
+                </div>
+            </div>
+            {% endif %}
+            {% if dsar_overdue %}
+            <div class="col-md-3">
+                <div class="p-3 rounded text-center" style="background-color:#F8D7DA;">
+                    <div style="font-size:28px;font-weight:bold;color:#842029;">{{ dsar_overdue }}</div>
+                    <div class="small fw-bold" style="color:#842029;">
+                        DSARs open and past deadline
+                    </div>
+                    <a href="{{ url_for('dsars') }}" class="small text-decoration-none">Review</a>
+                </div>
+            </div>
+            {% endif %}
+            {% if dsar_late_completed %}
+            <div class="col-md-3">
+                <div class="p-3 rounded text-center" style="background-color:#F8D7DA;">
+                    <div style="font-size:28px;font-weight:bold;color:#842029;">{{ dsar_late_completed }}</div>
+                    <div class="small fw-bold" style="color:#842029;">
+                        DSARs completed after the deadline
+                    </div>
+                    <a href="{{ url_for('dsars') }}" class="small text-decoration-none">Review</a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        {% else %}
+        <h5 class="fw-bold mb-0" style="color:#0f5132;">
+            <i class="bi bi-shield-check me-2"></i>No statutory deadlines currently breached
+        </h5>
+        {% endif %}
+    </div>
 </div>
 
 <!-- Summary Cards -->
@@ -112,9 +174,10 @@
                                 DSAR Deadline
                             </div>
                             <div class="small text-muted">
-                                Data Subject Access Requests must be 
-                                completed within one calendar month under 
-                                UK GDPR Article 12.
+                                Data Subject Access Requests must be completed 
+                                within one calendar month of the relevant time 
+                                under UK GDPR Article 12A, as inserted by the 
+                                Data (Use and Access) Act 2025.
                             </div>
                         </div>
                     </div>
