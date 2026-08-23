@@ -1,12 +1,32 @@
 {% extends "base.html" %}
 
 {% block content %}
+{% set ns = namespace(overdue=0, due_soon=0, on_track=0, done_ontime=0, done_late=0) %}
+{% for d in dsars %}
+    {% if d.status == 'Completed' %}
+        {% if d.completed_at and d.completed_at[:10] > d.deadline[:10] %}
+            {% set ns.done_late = ns.done_late + 1 %}
+        {% else %}
+            {% set ns.done_ontime = ns.done_ontime + 1 %}
+        {% endif %}
+    {% elif d.days_remaining < 0 %}
+        {% set ns.overdue = ns.overdue + 1 %}
+    {% elif d.days_remaining <= 7 %}
+        {% set ns.due_soon = ns.due_soon + 1 %}
+    {% else %}
+        {% set ns.on_track = ns.on_track + 1 %}
+    {% endif %}
+{% endfor %}
+
 <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
         <h2 class="fw-bold" style="color: #1F4E79;">
             <i class="bi bi-person-lines-fill me-2"></i>DSAR Manager
         </h2>
-        <p class="text-muted mb-0">Manage Data Subject Access Requests within the 30-day statutory deadline</p>
+        <p class="text-muted mb-0">
+            Manage Data Subject Access Requests within the statutory period of one calendar
+            month from the relevant time (UK GDPR Art. 12A)
+        </p>
     </div>
     <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newDSARModal">
         <i class="bi bi-plus-circle me-2"></i>New DSAR
@@ -14,41 +34,35 @@
 </div>
 
 <!-- Summary Strip -->
-<div class="row g-3 mb-4">
-    <div class="col-md-3">
-        <div class="p-3 rounded text-center" style="background-color:#F8D7DA;">
-            <div class="fw-bold small" style="color:#842029;">Overdue</div>
-            <div style="font-size:28px;font-weight:bold;color:#842029;">
-                {{ dsars | selectattr('days_remaining', 'lt', 0) | 
-                   selectattr('status', 'ne', 'Completed') | list | length }}
-            </div>
+<div class="row row-cols-2 row-cols-md-5 g-3 mb-4">
+    <div class="col">
+        <div class="p-3 rounded text-center h-100" style="background-color:#F8D7DA;">
+            <div class="fw-bold small" style="color:#842029;">Open and overdue</div>
+            <div style="font-size:28px;font-weight:bold;color:#842029;">{{ ns.overdue }}</div>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="p-3 rounded text-center" style="background-color:#FFF3CD;">
-            <div class="fw-bold small" style="color:#856404;">Due Soon (7 days)</div>
-            <div style="font-size:28px;font-weight:bold;color:#856404;">
-                {{ dsars | selectattr('days_remaining', 'ge', 0) | 
-                   selectattr('days_remaining', 'le', 7) |
-                   selectattr('status', 'ne', 'Completed') | list | length }}
-            </div>
+    <div class="col">
+        <div class="p-3 rounded text-center h-100" style="background-color:#FFF3CD;">
+            <div class="fw-bold small" style="color:#856404;">Due within 7 days</div>
+            <div style="font-size:28px;font-weight:bold;color:#856404;">{{ ns.due_soon }}</div>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="p-3 rounded text-center" style="background-color:#D1ECF1;">
-            <div class="fw-bold small" style="color:#0c5460;">On Track</div>
-            <div style="font-size:28px;font-weight:bold;color:#0c5460;">
-                {{ dsars | selectattr('days_remaining', 'gt', 7) |
-                   selectattr('status', 'ne', 'Completed') | list | length }}
-            </div>
+    <div class="col">
+        <div class="p-3 rounded text-center h-100" style="background-color:#D1ECF1;">
+            <div class="fw-bold small" style="color:#0c5460;">On track</div>
+            <div style="font-size:28px;font-weight:bold;color:#0c5460;">{{ ns.on_track }}</div>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="p-3 rounded text-center" style="background-color:#D4EDDA;">
-            <div class="fw-bold small" style="color:#155724;">Completed</div>
-            <div style="font-size:28px;font-weight:bold;color:#155724;">
-                {{ dsars | selectattr('status', 'equalto', 'Completed') | list | length }}
-            </div>
+    <div class="col">
+        <div class="p-3 rounded text-center h-100" style="background-color:#D4EDDA;">
+            <div class="fw-bold small" style="color:#155724;">Completed on time</div>
+            <div style="font-size:28px;font-weight:bold;color:#155724;">{{ ns.done_ontime }}</div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="p-3 rounded text-center h-100" style="background-color:#F8D7DA;">
+            <div class="fw-bold small" style="color:#842029;">Completed late</div>
+            <div style="font-size:28px;font-weight:bold;color:#842029;">{{ ns.done_late }}</div>
         </div>
     </div>
 </div>
@@ -73,7 +87,7 @@
                 </thead>
                 <tbody>
                     {% for d in dsars %}
-                    <tr class="{{ 'table-danger' if d.days_remaining < 0 and d.status != 'Completed' else '' }}">
+                    <tr class="{{ 'table-danger' if (d.days_remaining < 0 and d.status != 'Completed') or (d.status == 'Completed' and d.completed_at and d.completed_at[:10] > d.deadline[:10]) else '' }}">
                         <td class="text-muted small">{{ d.id }}</td>
                         <td>
                             <div class="fw-bold">{{ d.requester_name }}</div>
@@ -95,7 +109,7 @@
                             </span>
                             {% elif d.days_remaining <= 7 %}
                             <span class="badge bg-warning text-dark">
-                                {{ d.days_remaining }} days left
+                                {{ d.days_remaining }} day{{ '' if d.days_remaining == 1 else 's' }} left
                             </span>
                             {% else %}
                             <span class="badge bg-success">
@@ -164,9 +178,13 @@
             </div>
             <form method="POST" action="{{ url_for('add_dsar') }}">
                 <div class="modal-body">
-                    <strong>One calendar month applies.</strong>
-                            The deadline runs from the relevant time, being the latest of the date received,
-                            the date identity was confirmed, or the date any fee was paid (UK GDPR Art. 12A).
+                    <div class="alert alert-info py-2 small mb-3">
+                        <i class="bi bi-clock me-1"></i>
+                        <strong>One calendar month applies.</strong>
+                        The deadline runs from the relevant time, being the latest of the date
+                        received, the date identity was confirmed, or the date any fee was paid
+                        (UK GDPR Art. 12A).
+                    </div>
                     <div class="mb-3">
                         <label class="form-label fw-bold">Requester Full Name</label>
                         <input type="text" name="requester_name" class="form-control"
@@ -188,21 +206,20 @@
                         <input type="date" name="received_at" class="form-control" required>
                     </div>
                     <div class="mb-3">
-                            <label class="form-label fw-bold">Date Identity Confirmed</label>
-                            <input type="date" name="identity_confirmed_at" class="form-control">
-                            <div class="form-text">Leave blank if identity was not in doubt.</div>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">Date Fee Paid</label>
-                            <input type="date" name="fee_paid_at" class="form-control">
-                            <div class="form-text">Leave blank if no fee was charged.</div>
-                        </div>
+                        <label class="form-label fw-bold">Date Identity Confirmed</label>
+                        <input type="date" name="identity_confirmed_at" class="form-control">
+                        <div class="form-text">Leave blank if identity was not in doubt.</div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Date Fee Paid</label>
+                        <input type="date" name="fee_paid_at" class="form-control">
+                        <div class="form-text">Leave blank if no fee was charged.</div>
+                    </div>
                     <div class="mb-3">
                         <label class="form-label fw-bold">Assign To</label>
                         <input type="text" name="assigned_to" class="form-control"
                                placeholder="e.g. Sarah Jones, Data Team">
                     </div>
-                    
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" 
