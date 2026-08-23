@@ -4,3 +4,10 @@ __pycache__/
 instance/
 *.db
 .vscode/
+venv/
+__pycache__/
+*.pyc
+instance/
+*.db
+.vscode/
+!civicguard_prereseed_10aug.db
