@@ -1,0 +1,22 @@
+Scenario 4, Hammersmith and Fulham. Note on scope.
+
+The ICO's reprimand recommended that all material intended for publication be
+signed off by a manager, and that a checklist be used when releasing
+information containing Excel spreadsheets. The Disclosure Workflow is that
+recommendation implemented as a system control rather than as a written
+procedure.
+
+What the replay demonstrates: a release that nobody had reviewed was stopped
+before publication, and a named officer required the check, with the grounds
+recorded and timestamped.
+
+What it does not demonstrate: the artefact cannot open the file and cannot
+detect hidden workbooks. In the real case the published response contained an
+Excel spreadsheet with 35 hidden workbooks, ten of which held personal
+information on 6,528 people including 2,342 children. The ICO accepted that
+their existence was not apparent, while noting that anyone with knowledge of
+Excel could have inspected the file for hidden data.
+
+The artefact creates the point at which someone must confirm the inspection
+happened, and records who required it. Claiming detection would be an
+overstatement and would not survive questioning.
