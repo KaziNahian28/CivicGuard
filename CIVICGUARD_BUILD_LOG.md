@@ -343,61 +343,7 @@ Defects closed 7 to 9 August: D4, D8, D9, D11, D12, D14, D16, D17, D18, D21, D22
 ### Note for Chapter 4 and the viva
 
 The paired dashboard captures, 5 August against 9 August, are the clearest single illustration of the project's argument. The earlier screen counted open work; the later screen measures that work against statutory deadlines and surfaces every failure on the landing page. This is the most direct available answer to the question of what the artefact provides beyond a spreadsheet or a shared inbox.
-
-**Step 5. Completion measured against deadline.** Complete, 8 August. **Closes D18.**
-
-In `templates/dsars.html` the Days Left cell previously rendered a green "Done" badge on any record whose status was Completed, without reference to the deadline. It now compares `completed_at` against `deadline` and renders "Completed late" in red or "Completed on time" in green accordingly. Date comparison is textual, which sorts correctly given ISO storage; `[:10]` strips any time component, and a guard on `completed_at` prevents failure on a record marked complete without a completion date.
-
-Verified live. Record 4 (deadline 2026-07-03, completed 2026-07-13) and record 1 (deadline 2026-07-08, completed 2026-08-05) both moved from green "Done" to red "Completed late". Prior to this change both presented as clean completions.
-
-**Step 6. Remaining interface wording and summary cards.** Not started for the DSAR module. D24 (list subtitle), D34 and D48 remain open.
-
 ---
-
-### Sunday 9 August, Breach Tracker status logic
-
-**Correction to a Tuesday finding.** D10 recorded that no amber band existed. This was wrong. Reading `templates/breaches.html` showed an existing `elif b.hours_elapsed > 48` branch rendering an amber "Urgent" badge. The Tuesday test breach sat at 40h, below that threshold, so it correctly displayed green and I inferred an absent band from a single observation. The real defect was narrower and is properly D11: the Warning summary card counted everything under 72 hours while the row badge used 48, so card and row disagreed. **D10 is withdrawn as recorded.** Worth noting in Ch5 as an instance of a testing inference corrected by later code reading.
-
-**Clock stops at notification.** `get_hours_elapsed()` in `app.py` took only a discovery date and always measured to the present. It now accepts an optional end point and measures discovery to notification where one exists, falling back to the present otherwise. The `breaches()` route passes `ico_notified_at` and derives a `notified_late` flag. **Closes D9.**
-
-Verified: record 3 fell from 556h to 10h, being discovery 13 July 12:43 to notification the same day. The figure now measures the notification interval rather than accumulating indefinitely.
-
-**Notification split by lateness.** The Time Elapsed cell previously coloured by elapsed time alone, so any notified breach rendered green. It now tests notification first and branches on `notified_late`, giving "Xh to notify, LATE" in red or "Xh to notify" in green. The row highlight condition was extended so a late notification retains its warning background. **Closes D8.**
-
-Verified: record 1, discovered 2026-07-10 and notified 2026-08-05, moved from green with no label to red "625h to notify, LATE" with the row highlighted. On 5 August the same action turned the record green and removed it from the Critical count.
-
-**Summary cards rebuilt.** Three cards became four, deriving from the same logic as the rows: Overdue not notified; Urgent under 24 hours left; Notified within 72 hours; Notified late. The previous "Warning, Under 72 Hours" card counted every unnotified breach including one reported minutes earlier, and the single "ICO Notified" card made no distinction between timely and late notification. A late notification now appears in its own red card rather than disappearing into a neutral tally. **Closes D11, D12.** This is the card-level half of F1a.
-
-Em dashes removed from three card titles and the breach title placeholder. **Closes D14.**
-
-**Still open in this module:** D43, future discovery dates accepted, record 5 displaying -5230h.
-
----
-
-### Sunday 9 August, dashboard
-
-**Risk surfaced ahead of volume.** `dashboard()` previously ran three COUNT queries returning pending disclosures, open breaches and open DSARs. Four risk figures were added: DSARs open and past deadline, DSARs completed after deadline, breaches past 72 hours and not notified, and breaches notified after deadline. The breach figures are derived by calling `get_hours_elapsed()` over the breach rows rather than by a separate SQL expression, so the dashboard and the Breach Tracker cannot diverge. This was a deliberate response to D11, where card and row logic had been written independently and disagreed.
-
-`templates/dashboard.html` gained an "Attention required" strip above the existing cards, rendering only those categories with a non-zero count and linking each to its module. Where nothing is overdue the strip renders a single green line stating that no statutory deadlines are currently breached. **Closes D33.**
-
-Verified live: nine failures surfaced that were entirely invisible on 5 August, being two breaches past 72 hours, one notified late, three DSARs overdue and three completed late.
-
-**Reminder card corrected.** The DSAR reminder cited UK GDPR Art. 12. It now cites Art. 12A as inserted by the Data (Use and Access) Act 2025, and states that the period runs from the relevant time. This resolves the internal contradiction recorded at E13, where the dashboard and the DSAR module stated different rules. **Closes D34, D35.** Em dash removed from the welcome line, **closing D36.**
-
----
-
-### Sunday 9 August, DSAR summary cards
-
-Four cards became five, counted by iterating the records against the same rules the rows use rather than by independent filter expressions: Open and overdue, Due within 7 days, On track, Completed on time, Completed late. Previously a single Completed card absorbed both timely and late completions, so the row display told the truth while the summary did not. **Closes D48.** The row highlight condition was also extended so a late completion retains its warning background.
-
-The page subtitle stated "30-day statutory deadline". It now states the statutory period as one calendar month from the relevant time under Art. 12A. This was the third and final location carrying the incorrect figure. **Closes D24.**
-
-The Art. 12A banner in the entry form had lost its `alert` wrapper during the step 3 edit and was rendering as unstyled text above the first field. Wrapper restored. Days Left pluralisation corrected, **closing D31.**
-
-Verified live: cards read three overdue, one completed on time, three completed late, in agreement with the row badges.
-
----
-
 ### Root cause note, D18 display ordering
 
 Root cause identified during step 3 while reading `templates/dsars.html`: the Days Left cell tests `{% if d.status == 'Completed' %}` **before** any comparison against the deadline, so a completed record renders a green "Done" badge unconditionally. The Lewisham failure therefore arises from a single ordering decision in the display logic rather than from any defect in the underlying data, which is worth stating plainly in Ch4.
@@ -412,11 +358,11 @@ Both branches confirmed live on 8 August. Record 6 (deadline 2027-03-22, complet
 
 ---
 
-### Note for Chapter 4
+### Note for Chapter 4, three levels of audit completeness
 
 On 8 August the list displayed records at three levels of evidential completeness simultaneously: record 3 (decided 13 July) showing action and actor only; record 5 (approved 7 August) showing action, actor and timestamp; record 6 (rejected 8 August) showing action, actor, timestamp and reasoning. A single screenshot capturing all three demonstrates what each stage of the audit work added. This contrast is destroyed by the Saturday re-seed and must be captured before then.
 
-### Note for Chapter 4
+### Note for Chapter 4, undatable older records
 
 The contrast between record 5 and records 1 to 4 on 7 August is a useful illustration of what the audit trail adds, since the older records genuinely cannot be dated. This contrast disappears at the Saturday re-seed, so it must be captured before then if it is to be used.
 
@@ -511,20 +457,33 @@ Established by test 10. Roughly half form work, half logic. A full day, not a mo
 
 ---
 
-## G. OPEN QUESTIONS- **Dissertation word band and chapter marking weightings.** Needed from the module handbook before chapter word budgets can be set.
+## G. OPEN QUESTIONS
+
+- ~~**Dissertation word band and chapter marking weightings.**~~ **Resolved.**
+  Confirmed from the handbook: 12,000 to 14,000 words, five chapters with
+  evaluation folded into Ch4. Report 60%, viva 20%. Ch4 implementation, testing
+  and validation carries 20%, Ch4 design 15%, Ch3 and Ch2 problem analysis 10%
+  each, remaining sections 5% each. The literature review transfers from the
+  MPR and carries 0%.
+- **Marking scope of the scenario replays.** Whether the five ICO replays are
+  assessed under Implementation, testing and validation at 20% or under
+  Critical evaluation at 5%. Asked of Dr Aldmour by email on 23 August, no
+  reply as at 1 September. Affects how much of Ch4 they occupy.
 - **Supervisor repository access.** Repo is private. Decide whether Dr Aldmour needs read access for marking, and grant before 11 August if so.
 
 ---
 
 ## H. CHAPTER FEED SUMMARY
 
-Quick view of where this log lands in the report.
+Quick view of where this log lands in the report. **Note the structure is five
+chapters, with evaluation folded into Chapter 4.** The MPR states six; that is
+corrected at X3 in the change ledger.
 
 **Ch4 Design and Implementation:** D2 (field capture), D3 to D6 (interface presentation in screenshots), DD1, DD5, E1, E4.
 
-**Ch5 Testing, Demonstration and Evaluation:** the full defect log as testing evidence, DD2 and DD4 as evaluation limitations, E1 to E4 as demonstration evidence, plus the five ICO scenario replays to come.
+**Ch4 Implementation, Testing and Critical Evaluation:** the full defect log as testing evidence, DD2 and DD4 as evaluation limitations, E1 to E4 as demonstration evidence, plus the five ICO scenario replays to come.
 
-**Ch6 Discussion and Conclusion:** DD1, DD2, DD3 as future work with reasoning already recorded.
+**Ch5 Conclusions and Future Work:** DD1, DD2, DD3 as future work with reasoning already recorded.
 
 ---
 
@@ -618,11 +577,133 @@ needing a pending record must be captured before further approvals. Re-seeding
 would restore pending records but delete the two genuine audit entries, which
 are worth more.
 
-### Still to do
+### 25 August and 1 September, five ICO scenario replays
 
-Five ICO scenario replays to `evidence/scenarios/`, one folder per case, in the
-order Nottinghamshire, Lewisham, Plymouth and Norfolk, Hammersmith and Fulham,
-DPP Law. Comparative analysis against OneTrust and Keepabl, documentation-based
-per DD4. Chapter 4 design and implementation, 3,000 words. Supervisor reply
-awaited on whether the replays are marked under Implementation and testing at
-20% or Critical evaluation at 5%.
+All five complete. Entered live through the interface rather than seeded, so
+each writes genuine `audit_log` entries with real timestamps. Officer raises,
+DPO decides, exercising the approval gate across a real role boundary. Sixteen
+captures across five folders in `evidence/scenarios/`, with three explanatory
+notes.
+
+| Scenario | Module | Replayed as | Captures |
+|---|---|---|---|
+| S1 Nottinghamshire | Disclosure | Child and Family Assessment to mother and two former partners, rejected requiring separate redacted versions | 4 |
+| S2 Lewisham | DSAR | H. Ademola for deadline visibility, P. Okonkwo for relevant time | 5 |
+| S3 Plymouth and Norfolk | DSAR | G. Mensah, received 2026-02-10, 176 days overdue | 2 |
+| S4 Hammersmith and Fulham | Disclosure | FOI workbook with unchecked worksheets, rejected | 2 |
+| S5 DPP Law | Breach | Loss of access logged, shown overdue, then marked notified and flagged late | 3 |
+
+**Unplanned finding, S2.** H. Ademola was captured on 25 August at one day
+before deadline and again on 1 September at seven days overdue, still open. No
+action was taken between the two and the gap arose because work paused rather
+than by design. The system surfaced the deadline correctly at both points and
+the request still went late. This is the Lewisham failure occurring inside the
+artefact rather than a demonstration of it, and it gives concrete form to the
+limitation stated in the MPR: replaying documented scenarios cannot establish
+whether staff would act on what the system surfaces.
+
+**One frame carries two scenarios.** `S3_02_long_running_request.png` shows five
+overdue requests at five magnitudes: 176, 59, 32, 10 and 7 days. The ordering
+distinguishes a request three weeks late from one nearly six months late
+without anyone running a report, which is the Plymouth failure. The Lewisham
+and Plymouth patterns also coexist in one caseload rather than in separate
+staged demonstrations.
+
+**Live audit entries now held.** Four disclosure decisions, on 23 August, 25
+August and 1 September, plus one breach notification on 1 September. These, not
+the seeded rows, carry the claim that the audit mechanism captures officer
+actions. `S4_02_rejection_audit.png` shows seven decided disclosures in one
+frame, four written through the interface and three by the seed script; Ch4
+must state which are which.
+
+**Scope limits recorded in the scenario folders, not to be overclaimed.** The
+artefact cannot open an Excel file or detect hidden workbooks, so S4
+demonstrates that a release nobody had reviewed was stopped, not that the
+hidden data was found. The DPP failure was one of classification rather than
+timing, and the Breach Tracker begins its clock only once someone has judged an
+incident reportable, so S5 demonstrates deadline enforcement and late-flagging,
+not the judgement preceding them.
+
+---
+
+### 1 September, ICO case facts verified against source
+
+Every case fact underpinning the five scenarios was checked against ICO
+publications. **Three errors were found, one of them material.** Full detail
+and correction numbering are in `CHANGE_LEDGER_10AUG.md` sections C and H.
+
+**Material error, X5. The DPP Law fine did include the late notification.**
+This log, the 10 August handover and the working notes all recorded that the
+£60,000 penalty was for Arts. 5(1)(f) and 32 and **not** for the 43-day delay.
+That is wrong. The ICO fined DPP Law Ltd for infringements of Articles
+5(1)(f), 32(1), 32(2) **and 33(1)** between 25 May 2018 and 17 July 2022. The
+Commissioner calculated a single penalty rather than separate ones, ensuring
+the total did not exceed the maximum for the gravest infringement, that of Art.
+5(1)(f), which is the likely origin of the misreading. **This strengthens the
+project:** the Art. 33(1) notification failure is expressly part of the
+enforcement, so the 72-Hour Breach Tracker rests on firmer ground than
+previously recorded.
+
+Two further points on DPP Law. The firm is a law practice, not a local
+authority, so it sits outside the council population the artefact targets and
+is included because it is the clearest recent UK enforcement on Art. 33(1)
+timing. DPP was reported in April 2025 to be appealing the penalty; the current
+status must be checked before submission.
+
+**Error X6, Hammersmith and Fulham.** The published response contained an Excel
+spreadsheet with 35 hidden workbooks, **ten of which** held personal
+information. Not 35. Of the 6,528 people affected, 2,342 were children, and 96
+of those were unaccompanied asylum-seeking children. The ICO's recommendations
+included using its sign-off checklist when releasing information containing
+Excel spreadsheets and requiring all material intended for publication to be
+signed off by a manager, which is the Disclosure Workflow described in the
+regulator's own words.
+
+**Errors X7 and X8, the legislation point, and a viva risk.** Section 76 of the
+Data (Use and Access) Act 2025 inserted Art. 12A, in force 5 February 2026, and
+it did **not** introduce the calendar month. One month from receipt was already
+the rule under Art. 12(3). What Art. 12A introduced is the applicable time
+period running from the relevant time, being the latest of receipt of the
+request, receipt of information requested under Art. 12(6), and payment of any
+fee under Art. 12(5), together with the two-month extension mechanism.
+
+**Therefore D16, thirty days versus calendar month, is an Art. 12(3) point, and
+the identity and fee fields are the Art. 12A point.** They are two distinct
+corrections and must not be conflated in Ch4.
+
+Related: the T. Ferreira record was received 31 January 2026, before Art. 12A
+commenced, and SI 2026/82 saves the previous position for requests in hand at
+commencement. The 28 February deadline is correct under both regimes so the
+figure stands, but that record demonstrates calendar-month arithmetic, not Art.
+12A. P. Okonkwo and M. Kowalczyk are the Art. 12A records.
+
+**Two claims softened for want of a source.** Earlier notes asserted Art. 32(1)
+for Nottinghamshire and Arts. 12(3) and 15(1) for Lewisham. Neither appears on
+the ICO summary pages. Either confirm from the reprimand PDFs or describe those
+failures without Article numbers. Plymouth's articles are confirmed as 12(3),
+15(1) and 15(3).
+
+---
+
+### State at close of 1 September
+
+**All work requiring the running system is complete.** Nothing remaining
+depends on the build environment.
+
+Evidence held: 16 defect captures in `defects/`, 10 Chapter 4 figures in
+`ch4_figures/`, 16 scenario captures across five folders in `scenarios/` with
+three notes, and `civicguard_prereseed_10aug.db`.
+
+Remaining work, thirteen days to submission on 14 September and the viva on 15
+September:
+
+| Item | Weight |
+|---|---|
+| Ch4 design, and implementation and testing | 15% and 20% |
+| Ch4 critical evaluation, drawing on the five scenarios | 5% |
+| Ch3 research methods | 10% |
+| Ch2 problem analysis, including the OneTrust and Keepabl comparison | 10% |
+| Ch1 introduction, expanded from the MPR | 5% |
+| Ch5 conclusions and future work | 5% |
+| Abstract, written last | 5% |
+| Corrections X1 to X8 applied rather than carried across | within structure 5% |

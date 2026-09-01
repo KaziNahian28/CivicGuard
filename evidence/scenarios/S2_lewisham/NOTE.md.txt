@@ -1,0 +1,22 @@
+Scenario 2, Lewisham Council. Note on captures 2 and 2b.
+
+These two frames show the same record, H. Ademola, seven days apart.
+
+On 25 August the deadline of 26 August was one day away. The record sat in
+the Due within 7 days band, open and answerable.
+
+On 1 September the record is seven days past its deadline, still open, and
+counted in Open and overdue.
+
+No action was taken on the record between the two captures. The gap was not
+planned. It arose because work on the project paused for several days.
+
+The system surfaced the deadline correctly at both points. The request still
+went late.
+
+This is the Lewisham failure occurring inside the artefact rather than a
+staged demonstration of it. Lewisham's 35% was made of individual requests
+that were visible, answerable, and not answered. It also gives concrete form
+to the limitation identified in the Mid-Point Review replaying documented
+scenarios cannot establish whether staff would act on what the system
+surfaces. Here they did not, and the outcome was the one the ICO reprimanded.
