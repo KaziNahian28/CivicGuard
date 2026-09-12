@@ -292,20 +292,6 @@ Verified live: cards read three overdue, one completed on time, three completed 
 
 ---
 
-## MPR FEEDBACK AND ITS IMPLICATIONS
-
-
-
-### Section marks
-
-| Section | Weight | Mark | Percent |
-|---|---|---|---|
-| Introduction | 10% | 7 | 70 |
-| Related Work Review | 30% | 20.4 | 68 |
-| Research gap | 25% | 17.5 | 70 |
-| Initial artefact progress | 15% | 10.8 | 72 |
-| Future plan | 10% | 7.5 | 75 |
-| Report structure | 10% | 7 | 70 |
 
 ### Structural advantages carried forward
 
@@ -467,9 +453,8 @@ Established by test 10. Roughly half form work, half logic. A full day, not a mo
   MPR and carries 0%.
 - **Marking scope of the scenario replays.** Whether the five ICO replays are
   assessed under Implementation, testing and validation at 20% or under
-  Critical evaluation at 5%. Asked of Dr Aldmour by email on 23 August, no
-  reply as at 1 September. Affects how much of Ch4 they occupy.
-- **Supervisor repository access.** Repo is private. Decide whether Dr Aldmour needs read access for marking, and grant before 11 August if so.
+  Critical evaluation at 5%. 
+
 
 ---
 
