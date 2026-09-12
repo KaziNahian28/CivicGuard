@@ -294,7 +294,7 @@ Verified live: cards read three overdue, one completed on time, three completed 
 
 ## MPR FEEDBACK AND ITS IMPLICATIONS
 
-**Mark: 70.2 out of 100** (rubric), recorded as 71.3. A distinction, but with essentially no cushion above the 70 line. The dissertation carries 60% and the viva 20%, so **70 or above is required across the dissertation and viva combined.**
+
 
 ### Section marks
 
