@@ -215,7 +215,7 @@ seed re-run, which would delete the two genuine audit entries at C9.
 | S5 DPP Law | Breach logged, shown overdue, then marked notified and flagged late. 3 captures plus note | **Done 1 Sep** |
 | Comparative analysis | OneTrust and Keepabl, documentation-based per DD4 | |
 | Ch4 design and implementation | 3,000 words, 35% of the report, the largest remaining block | |
-| Supervisor reply on marking scope | Email sent 23 Aug. Answer determines whether the replays are written under Implementation and testing at 20% or Critical evaluation at 5% | Sent |
+
 
 ---
 
